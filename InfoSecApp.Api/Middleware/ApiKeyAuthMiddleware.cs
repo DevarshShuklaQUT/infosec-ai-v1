@@ -1,3 +1,5 @@
+using InfoSecApp.Api.Services;
+
 namespace InfoSecApp.Api.Middleware;
 
 public class ApiKeyAuthMiddleware
@@ -28,9 +30,20 @@ public class ApiKeyAuthMiddleware
         }
 
         var appSettings = context.RequestServices.GetRequiredService<IConfiguration>();
-        var validApiKeys = appSettings.GetSection("ApiKeys").Get<List<string>>() ?? new List<string>();
+        var hashedApiKeys = appSettings.GetSection("HashedApiKeys").Get<List<string>>() ?? new List<string>();
 
-        if (!validApiKeys.Contains(extractedApiKey!))
+        // Verify the provided API key against all stored hashed keys
+        bool isValid = false;
+        foreach (var hashedKey in hashedApiKeys)
+        {
+            if (ApiKeyHasher.VerifyApiKey(extractedApiKey!, hashedKey))
+            {
+                isValid = true;
+                break;
+            }
+        }
+
+        if (!isValid)
         {
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Invalid API Key");

@@ -31,7 +31,7 @@ This solution consists of two main projects:
 
 ### Prerequisites
 - .NET 10.0 SDK or later
-- SQLite (for development) or SQL Server (for production)
+- Docker and Docker Compose (for SQL Server)
 
 ### Installation
 
@@ -40,12 +40,20 @@ This solution consists of two main projects:
 
 ### Database Setup
 
-#### For Web Application
+#### Start SQL Server (Docker)
+```bash
+docker compose up -d
+```
+
+This starts SQL Server 2022 in Docker. Wait about 30 seconds for it to be ready.
+
+#### Apply Migrations
 ```bash
 cd InfoSecApp.Web
-dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
+
+**Note:** See [DOCKER_SETUP.md](DOCKER_SETUP.md) for detailed Docker and database management instructions.
 
 ### Running the Applications
 
@@ -116,15 +124,17 @@ Base URL: `http://localhost:7000/api`
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "DataSource=app.db;Cache=Shared"
+    "DefaultConnection": "Server=localhost,1433;Database=InfoSecAppDb;User Id=sa;Password=InfoSec@Pass123;TrustServerCertificate=True;MultipleActiveResultSets=true"
   }
 }
 ```
 
+**Database:** SQL Server 2022 running in Docker (see [DOCKER_SETUP.md](DOCKER_SETUP.md))
+
 ### API Application (appsettings.json)
 ```json
 {
-  "ApiKeys": [
+  "HashedApiKeys": [
     "test-api-key-12345",
     "prod-api-key-67890"
   ]
