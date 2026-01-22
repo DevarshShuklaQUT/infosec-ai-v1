@@ -52,16 +52,18 @@ dotnet ef database update
 #### Run Web Application (MVC Frontend)
 ```bash
 cd InfoSecApp.Web
-dotnet run
+dotnet run --urls "http://localhost:5000"
 ```
-The web application will be available at: https://localhost:5001
+The web application will be available at: http://localhost:5000
 
 #### Run API Application
 ```bash
 cd InfoSecApp.Api
-dotnet run
+dotnet run --urls "http://localhost:7000"
 ```
-The API will be available at: https://localhost:7001
+The API will be available at: http://localhost:7000
+
+**Note:** For production deployments, configure HTTPS with proper SSL certificates.
 
 ### Default Credentials
 
@@ -84,7 +86,7 @@ X-API-Key: test-api-key-12345
 ## API Endpoints
 
 ### Web Application SuperAdmin API
-Base URL: `https://localhost:5001/api/superadmin`
+Base URL: `http://localhost:5000/api/superadmin`
 
 **Tenant Management:**
 - `GET /api/superadmin/tenants` - List all tenants
@@ -98,7 +100,7 @@ Base URL: `https://localhost:5001/api/superadmin`
 - `POST /api/superadmin/users/{userId}/assign-role` - Assign role to user
 
 ### API Application
-Base URL: `https://localhost:7001/api`
+Base URL: `http://localhost:7000/api`
 
 **Data Management:**
 - `GET /api/data` - Get all data items
@@ -141,7 +143,7 @@ Base URL: `https://localhost:7001/api`
 
 ### Creating a Tenant
 ```bash
-curl -X POST https://localhost:5001/api/superadmin/tenants \
+curl -X POST http://localhost:5000/api/superadmin/tenants \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Acme Corporation",
