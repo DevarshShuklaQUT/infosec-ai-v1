@@ -40,7 +40,7 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            logger.LogInformation($"Attempting to initialize database (attempt {i + 1}/{maxRetries})...");
+            logger.LogInformation("Attempting to initialize database (attempt {Attempt}/{MaxRetries})...", i + 1, maxRetries);
             
             // Ensure database is created and migrations are applied
             var context = services.GetRequiredService<ApplicationDbContext>();
