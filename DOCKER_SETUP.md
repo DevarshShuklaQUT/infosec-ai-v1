@@ -34,6 +34,8 @@ This will:
 4. Start the SQL Server container
 5. Run health checks to ensure SQL Server is ready
 
+**Note:** The application includes automatic retry logic with exponential backoff. You can start the application immediately after starting SQL Server - it will automatically wait for the database to be ready (up to 10 retry attempts with delays between 5-30 seconds).
+
 ### Checking SQL Server Status
 
 ```bash

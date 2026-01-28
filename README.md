@@ -45,7 +45,7 @@ This solution consists of two main projects:
 docker compose up -d
 ```
 
-This starts SQL Server 2022 in Docker. Wait about 30 seconds for it to be ready.
+This starts SQL Server 2022 in Docker. The application has built-in retry logic to wait for SQL Server to be ready, so you can start the application immediately after starting Docker. The application will automatically retry the database connection up to 10 times with exponential backoff (starting at 5 seconds, up to 30 seconds between retries).
 
 #### Apply Migrations
 ```bash
