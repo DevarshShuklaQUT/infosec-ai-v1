@@ -26,18 +26,46 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Initialize database and seed data
+// Initialize database and seed data with retry logic
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
+    // Retry configuration
+    int maxRetries = 10;
+    int delayMilliseconds = 5000; // Start with 5 seconds
+    
+    for (int i = 0; i < maxRetries; i++)
     {
-        await DbInitializer.Initialize(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        try
+        {
+            logger.LogInformation($"Attempting to initialize database (attempt {i + 1}/{maxRetries})...");
+            
+            // Ensure database is created and migrations are applied
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync();
+            
+            // Seed initial data
+            await DbInitializer.Initialize(services);
+            
+            logger.LogInformation("Database initialized successfully.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            if (i == maxRetries - 1)
+            {
+                logger.LogError(ex, "Failed to initialize database after {MaxRetries} attempts.", maxRetries);
+                throw; // Re-throw on final attempt
+            }
+            
+            logger.LogWarning(ex, "Database initialization attempt {Attempt} failed. Retrying in {Delay}ms...", i + 1, delayMilliseconds);
+            await Task.Delay(delayMilliseconds);
+            
+            // Exponential backoff with cap at 30 seconds
+            delayMilliseconds = Math.Min(delayMilliseconds * 2, 30000);
+        }
     }
 }
 
